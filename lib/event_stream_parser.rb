@@ -1,4 +1,4 @@
-# frozen_string_literal: false
+# frozen_string_literal: true
 
 require "event_stream_parser/version"
 
@@ -20,12 +20,12 @@ module EventStreamParser
       # event ID buffer must be associated with it. They must be initialized to
       # the empty string.
       #
-      @data_buffer = ""
-      @event_type_buffer = ""
-      @last_event_id_buffer = ""
+      @data_buffer = +""
+      @event_type_buffer = +""
+      @last_event_id_buffer = +""
 
       @reconnection_time = nil
-      @buffer = ""
+      @buffer = +""
       @first_chunk = true
     end
 
@@ -194,8 +194,8 @@ module EventStreamParser
       #    event type buffer to the empty string and return.
       #
       if @data_buffer.empty?
-        @data_buffer = ""
-        @event_type_buffer = ""
+        @data_buffer = +""
+        @event_type_buffer = +""
         return
       end
       ##
@@ -219,8 +219,8 @@ module EventStreamParser
       ##
       # 7. Set the data buffer and the event type buffer to the empty string.
       #
-      @data_buffer = ""
-      @event_type_buffer = ""
+      @data_buffer = +""
+      @event_type_buffer = +""
 
       yield type, data, id, @reconnection_time
     end
