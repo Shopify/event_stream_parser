@@ -29,4 +29,4 @@ jobs:
         with:
           ruby-version: "3.2"
           bundler-cache: true
-      - run: rubocop
+      - run: bundle exec rubocop
