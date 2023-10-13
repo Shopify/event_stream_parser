@@ -1,6 +1,11 @@
+# frozen_string_literal: true
+
 source "https://rubygems.org"
 
-git_source(:github) {|repo_name| "https://github.com/Shopify/event_stream_parser" }
-
-# Specify your gem's dependencies in event_stream_parser.gemspec
 gemspec
+
+group :test do
+  gem "rubocop", "~> 1.44.0"
+  gem "rubocop-shopify", "~> 2.12.0", require: false
+  gem "rubocop-performance", require: false
+end

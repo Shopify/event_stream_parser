@@ -158,7 +158,7 @@ module EventStreamParser
         # field value as an integer in base ten, and set the event stream's
         # reconnection time to that integer. Otherwise, ignore the field.
         #
-        @reconnection_time = value.to_i if value =~ /\A\d+\z/
+        @reconnection_time = value.to_i if /\A\d+\z/.match?(value)
       ##
       # Otherwise
       #
@@ -228,4 +228,3 @@ module EventStreamParser
     def ignore; end
   end
 end
-

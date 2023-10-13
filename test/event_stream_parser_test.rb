@@ -303,7 +303,7 @@ describe EventStreamParser::Parser do
     end
 
     it "treats a single space after colon as optional" do
-      feed <<~CHUNK.gsub("|", "")
+      feed <<~CHUNK.delete("|")
         data:hello
 
         data: world
@@ -425,9 +425,3 @@ describe EventStreamParser::Parser do
     assert_equal(events, @events)
   end
 end
-
-# class EventStreamParserTest < Minitest::Test
-
-
-
-# end

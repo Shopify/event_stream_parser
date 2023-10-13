@@ -1,0 +1,7 @@
+inherit_gem:
+  rubocop-shopify: rubocop.yml
+
+require: rubocop-performance
+
+Performance:
+  Enabled: true
