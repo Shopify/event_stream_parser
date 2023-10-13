@@ -8,3 +8,6 @@ Performance:
 
 AllCops:
   NewCops: enable
+
+Style/SpecialGlobalVars:
+  Enabled: false

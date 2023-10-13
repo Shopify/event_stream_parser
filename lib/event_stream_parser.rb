@@ -108,7 +108,7 @@ module EventStreamParser
         # Process the field using the steps described below, using field as the
         # field name and value as the field value.
         #
-        process_field($~[:field], $~[:value]) # rubocop:disable Style/SpecialGlobalVars
+        process_field($~[:field], $~[:value])
       ##
       # Otherwise, the string is not empty but does not contain a U+003A COLON
       # character (:)
