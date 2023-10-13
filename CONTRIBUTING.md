@@ -7,7 +7,7 @@ This library aims to stay as simple and solely focused on parsing the EventStrea
 ## Standards
 
 - PR should explain what the feature does, and why the change exists.
-- Code _must_ pass tests and linting.
+- Code _must_ pass tests, 100% branch coverage, and linting.
 - New tests should be added to cover new functionality or to demonstrate bugs.
 - Be consistent. Write clean code that follows [Ruby community standards](https://github.com/bbatsov/ruby-style-guide).
 - Code should be generic and reusable.
@@ -22,7 +22,7 @@ If you're stuck, ask questions!
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
 
-### Testing
+### Testing (with code coverage)
 
 ```sh
 rake test

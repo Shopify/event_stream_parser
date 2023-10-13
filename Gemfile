@@ -8,4 +8,5 @@ group :test do
   gem "rubocop", "~> 1.44.0"
   gem "rubocop-shopify", "~> 2.12.0", require: false
   gem "rubocop-performance", require: false
+  gem 'simplecov', require: false
 end
