@@ -27,6 +27,7 @@ module EventStreamParser
       @reconnection_time = nil
       @buffer = +""
       @first_chunk = true
+      @last_delimiter = nil
     end
 
     def feed(chunk, &proc)
@@ -49,8 +50,13 @@ module EventStreamParser
       # followed by a U+000A LINE FEED (LF) character being the ways in which a
       # line can end.
       #
-      while (line = @buffer.slice!(/.*?(\r\n|\r|\n)/))
-        line = line.chomp
+      if @last_delimiter == "\r"
+        @buffer.delete_prefix!("\n")
+      end
+
+      while (line = @buffer.slice!(/.*?(?<delim>\r\n|\r|\n)/))
+        line.chomp!
+        @last_delimiter = $~[:delim]
         process_line(line, &proc)
       end
       ##

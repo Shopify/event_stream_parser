@@ -186,6 +186,15 @@ describe EventStreamParser::Parser do
       ]
     end
 
+    it "handles fragmented CRLF" do
+      feed "data: hello\r"
+      feed "\nevent: greeting\r\n\r\n"
+
+      expect [
+        ["greeting", "hello", "", nil],
+      ]
+    end
+
     it "yields multiple events" do
       feed <<~CHUNK
         data: hello
