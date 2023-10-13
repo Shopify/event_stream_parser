@@ -20,6 +20,7 @@ jobs:
       - run: bundle exec rake test
         continue-on-error: ${{ matrix.entry.allowed-failure }}
   rubocop:
+    name: Lint
     strategy:
       fail-fast: false
     runs-on: ubuntu-latest
