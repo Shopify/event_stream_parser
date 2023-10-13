@@ -85,7 +85,7 @@ git commits and tags, and push the `.gem` file to
 Bug reports and pull requests are welcome on GitHub at
 https://github.com/Shopify/event_stream_parser. This project is intended to be a
 safe, welcoming space for collaboration, and contributors are expected to adhere
-to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+to the [Contributor Covenant](http://contributor-covenant.org) code of conduct. Read more about contributing [here](https://github.com/Shopify/event_stream_parser/blob/main/CONTRIBUTING.md).
 
 ## License
 
@@ -95,4 +95,4 @@ The gem is available as open source under the terms of the
 ## Code of Conduct
 
 Everyone interacting in this repository is expected to follow the
-[code of conduct](https://github.com/Shopify/event_stream_parser/blob/master/CODE_OF_CONDUCT.md).
+[Code of Conduct](https://github.com/Shopify/event_stream_parser/blob/main/CODE_OF_CONDUCT.md).
