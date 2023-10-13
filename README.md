@@ -1,12 +1,12 @@
-# EventStreamParser
+# event_stream_parser
 
 A lightweight, fully spec-compliant parser for the
-[EventStream](https://www.w3.org/TR/eventsource/) format.
+[event stream](https://www.w3.org/TR/eventsource/) format.
 
 It only deals with the parsing of events and not any of the client/transport
-aspects. This is not an Server-Sent Events (SSE) client.
+aspects. This is not a Server-sent Events (SSE) client.
 
-Under the hood, it's a stateful parser that receives chunks (that are emitted
+Under the hood, it's a stateful parser that receives chunks (that are received
 from an HTTP client, for example) and emits events as it parses them. But it
 remembers the last event id and reconnection time and keeps emitting them as
 long as they are not overwritten by new ones.
