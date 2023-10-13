@@ -5,3 +5,6 @@ require: rubocop-performance
 
 Performance:
   Enabled: true
+
+AllCops:
+  NewCops: enable
