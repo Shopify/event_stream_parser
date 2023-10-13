@@ -1,0 +1,20 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        entry:
+          - { ruby: 2.7, allowed-failure: false } # minimum supported
+          - { ruby: 3.2, allowed-failure: false } # latest
+          - { ruby: ruby-head, allowed-failure: true }
+    name: Test Ruby ${{ matrix.entry.ruby }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.entry.ruby }}
+      - run: rake
+        continue-on-error: ${{ matrix.entry.allowed-failure }}
