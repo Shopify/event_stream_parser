@@ -41,7 +41,7 @@ parser = EventStreamParser::Parser.new
 parser.feed do |type, data, id, reconnection_time|
   puts "Event type: #{type}"
   puts "Event data: #{data}"
-  puts "Event id: #{data}"
+  puts "Event id: #{id}"
   puts "Reconnection time: #{reconnection_time}"
 end
 ```
@@ -59,7 +59,7 @@ producer:
 parser_stream = parser.stream do |type, data, id, reconnection_time|
   puts "Event type: #{type}"
   puts "Event data: #{data}"
-  puts "Event id: #{data}"
+  puts "Event id: #{id}"
   puts "Reconnection time: #{reconnection_time}"
 end
 
