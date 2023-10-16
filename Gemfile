@@ -1,12 +1,19 @@
 # frozen_string_literal: true
 
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
 gemspec
 
+group :development, :test do
+  gem 'rake', '~> 13.0'
+end
+
+group :development do
+  gem 'rubocop', '~> 1.28.2'
+  gem 'rubocop-performance', require: false
+end
+
 group :test do
-  gem "rubocop", "~> 1.44.0"
-  gem "rubocop-shopify", "~> 2.12.0", require: false
-  gem "rubocop-performance", require: false
-  gem "simplecov", require: false
+  gem 'minitest', '~> 5.0'
+  gem 'simplecov', require: false
 end

@@ -1,6 +1,3 @@
-inherit_gem:
-  rubocop-shopify: rubocop.yml
-
 require: rubocop-performance
 
 Performance:
@@ -8,6 +5,13 @@ Performance:
 
 AllCops:
   NewCops: enable
+  TargetRubyVersion: 2.6
 
 Style/SpecialGlobalVars:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/BlockLength:
   Enabled: false
