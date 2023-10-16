@@ -20,7 +20,12 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version     = ">= 2.7.0"
   spec.required_rubygems_version = ">= 1.3.7"
 
-  spec.metadata["allowed_push_host"] = "https://rubygems.org"
+  spec.metadata = {
+    "bug_tracker_uri" => "https://github.com/Shopify/event_stream_parser/issues",
+    "changelog_uri" => "https://github.com/Shopify/event_stream_parser/blob/main/CHANGELOG.md",
+    "source_code_uri" => "https://github.com/Shopify/event_stream_parser",
+    "allowed_push_host" => "https://rubygems.org",
+  }
 
   spec.files = Dir.glob("{lib}/**/*") + ["LICENSE.md", "README.md"]
 

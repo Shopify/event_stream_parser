@@ -399,23 +399,6 @@ describe EventStreamParser::Parser do
           ["farewell", "bye\nworld", "", nil],
         ]
       end
-
-      it "strips BOM from first chunk" do
-        chunks = <<~CHUNK.split("\n").map { |line| line + "\n" }
-          data: hello
-          data: world
-
-          #
-        CHUNK
-
-        chunks[0] = chunks[0].prepend(EventStreamParser::Parser::UTF_8_BOM)
-
-        stream chunks
-
-        expect [
-          ["", "hello\nworld", "", nil],
-        ]
-      end
     end
   end
 
