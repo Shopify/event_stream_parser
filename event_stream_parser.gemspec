@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/Shopify/event_stream_parser"
   spec.license       = "MIT"
 
-  spec.required_ruby_version     = ">= 2.7.0"
+  spec.required_ruby_version     = ">= 2.6.0"
   spec.required_rubygems_version = ">= 1.3.7"
 
   spec.metadata = {
@@ -32,7 +32,4 @@ Gem::Specification.new do |spec|
   spec.extra_rdoc_files = ["README.md"]
 
   spec.require_paths = ["lib"]
-
-  spec.add_development_dependency("minitest", "~> 5.0")
-  spec.add_development_dependency("rake", "~> 13.0")
 end

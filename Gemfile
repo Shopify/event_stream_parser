@@ -4,9 +4,16 @@ source "https://rubygems.org"
 
 gemspec
 
-group :test do
-  gem "rubocop", "~> 1.44.0"
-  gem "rubocop-shopify", "~> 2.12.0", require: false
+group :development, :test do
+  gem "rake", "~> 13.0"
+end
+
+group :development do
+  gem "rubocop", "~> 1.28.2"
   gem "rubocop-performance", require: false
+end
+
+group :test do
+  gem "minitest", "~> 5.0"
   gem "simplecov", require: false
 end
