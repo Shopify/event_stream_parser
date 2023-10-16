@@ -11,6 +11,8 @@ from an HTTP client, for example) and emits events as it parses them. But it
 remembers the last event id and reconnection time and keeps emitting them as
 long as they are not overwritten by new ones.
 
+BOM stripping is left as a responsibility of the chunk provider.
+
 ## Installation
 
 Add this line to your application's Gemfile:

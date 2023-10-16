@@ -12,8 +12,6 @@ module EventStreamParser
   # Code comments are copied from the spec.
   #
   class Parser
-    UTF_8_BOM = [0xEF, 0xBB, 0xBF].pack("C*").force_encoding("UTF-8").freeze
-
     def initialize
       ##
       # When a stream is parsed, a data buffer, an event type buffer, and a last
@@ -26,20 +24,10 @@ module EventStreamParser
 
       @reconnection_time = nil
       @buffer = +""
-      @first_chunk = true
       @last_delimiter = nil
     end
 
     def feed(chunk, &proc)
-      ##
-      # The UTF-8 decode algorithm strips one leading UTF-8 Byte Order Mark (BOM),
-      # if any.
-      #
-      if @first_chunk
-        chunk = chunk.delete_prefix(UTF_8_BOM)
-        @first_chunk = false
-      end
-
       @buffer << chunk
 
       ##
