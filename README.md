@@ -1,5 +1,8 @@
 # event_stream_parser
 
+[![Gem Version](https://badge.fury.io/rb/event_stream_parser.svg)](https://badge.fury.io/rb/event_stream_parser)
+[![CI](https://github.com/Shopify/event_stream_parser/actions/workflows/ci.yml/badge.svg)](https://github.com/Shopify/event_stream_parser/actions/workflows/ci.yml)
+
 A lightweight, fully spec-compliant parser for the
 [event stream](https://www.w3.org/TR/eventsource/) format.
 
