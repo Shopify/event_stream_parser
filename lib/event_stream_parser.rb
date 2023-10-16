@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "event_stream_parser/version"
+require 'event_stream_parser/version'
 
 module EventStreamParser
   ##
@@ -18,12 +18,12 @@ module EventStreamParser
       # event ID buffer must be associated with it. They must be initialized to
       # the empty string.
       #
-      @data_buffer = +""
-      @event_type_buffer = +""
-      @last_event_id_buffer = +""
+      @data_buffer = +''
+      @event_type_buffer = +''
+      @last_event_id_buffer = +''
 
       @reconnection_time = nil
-      @buffer = +""
+      @buffer = +''
       @last_delimiter = nil
     end
 
@@ -38,9 +38,7 @@ module EventStreamParser
       # followed by a U+000A LINE FEED (LF) character being the ways in which a
       # line can end.
       #
-      if @last_delimiter == "\r"
-        @buffer.delete_prefix!("\n")
-      end
+      @buffer.delete_prefix!("\n") if @last_delimiter == "\r"
 
       while (line = @buffer.slice!(/.*?(?<delim>\r\n|\r|\n)/))
         line.chomp!
@@ -68,7 +66,7 @@ module EventStreamParser
       ##
       # If the line is empty (a blank line)
       #
-      when ""
+      when ''
         ##
         # Dispatch the event, as defined below.
         #
@@ -106,7 +104,7 @@ module EventStreamParser
         # Process the field using the steps described below, using the whole line
         # as the field name, and the empty string as the field value.
         #
-        process_field(line, "")
+        process_field(line, '')
       end
     end
 
@@ -120,7 +118,7 @@ module EventStreamParser
       ##
       # If the field name is "event"
       #
-      when "event"
+      when 'event'
         ##
         # Set the event type buffer to field value.
         #
@@ -128,7 +126,7 @@ module EventStreamParser
       ##
       # If the field name is "data"
       #
-      when "data"
+      when 'data'
         ##
         # Append the field value to the data buffer, then append a single U+000A
         # LINE FEED (LF) character to the data buffer.
@@ -137,7 +135,7 @@ module EventStreamParser
       ##
       # If the field name is "id"
       #
-      when "id"
+      when 'id'
         ##
         # If the field value does not contain U+0000 NULL, then set the last event
         # ID buffer to the field value. Otherwise, ignore the field.
@@ -146,7 +144,7 @@ module EventStreamParser
       ##
       # If the field name is "retry"
       #
-      when "retry"
+      when 'retry'
         ##
         # If the field value consists of only ASCII digits, then interpret the
         # field value as an integer in base ten, and set the event stream's
@@ -188,8 +186,8 @@ module EventStreamParser
       #    event type buffer to the empty string and return.
       #
       if @data_buffer.empty?
-        @data_buffer = +""
-        @event_type_buffer = +""
+        @data_buffer = +''
+        @event_type_buffer = +''
         return
       end
       ##
@@ -213,8 +211,8 @@ module EventStreamParser
       ##
       # 7. Set the data buffer and the event type buffer to the empty string.
       #
-      @data_buffer = +""
-      @event_type_buffer = +""
+      @data_buffer = +''
+      @event_type_buffer = +''
 
       yield type, data, id, @reconnection_time
     end

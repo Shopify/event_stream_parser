@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "test_helper"
+require 'test_helper'
 
 describe EventStreamParser::Parser do
   before do
@@ -8,7 +8,7 @@ describe EventStreamParser::Parser do
     @events = []
   end
 
-  describe "feed" do
+  describe 'feed' do
     it "doesn't yield until empty line" do
       feed <<~CHUNK
         data: hello
@@ -47,7 +47,7 @@ describe EventStreamParser::Parser do
       expect []
     end
 
-    it "yields with a data field" do
+    it 'yields with a data field' do
       feed <<~CHUNK
         data: hello
 
@@ -55,11 +55,11 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "hello", "", nil],
+        ['', 'hello', '', nil]
       ]
     end
 
-    it "yields with data and event fields" do
+    it 'yields with data and event fields' do
       feed <<~CHUNK
         event: greeting
         data: hello
@@ -68,11 +68,11 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["greeting", "hello", "", nil],
+        ['greeting', 'hello', '', nil]
       ]
     end
 
-    it "yields with data and id fields" do
+    it 'yields with data and id fields' do
       feed <<~CHUNK
         id: event-1
         data: hello
@@ -81,11 +81,11 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "hello", "event-1", nil],
+        ['', 'hello', 'event-1', nil]
       ]
     end
 
-    it "yields with data and retry fields" do
+    it 'yields with data and retry fields' do
       feed <<~CHUNK
         retry: 300
         data: hello
@@ -94,11 +94,11 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "hello", "", 300],
+        ['', 'hello', '', 300]
       ]
     end
 
-    it "yields with all fields" do
+    it 'yields with all fields' do
       feed <<~CHUNK
         retry: 300
         id: event-1
@@ -109,11 +109,11 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["greeting", "hello", "event-1", 300],
+        ['greeting', 'hello', 'event-1', 300]
       ]
     end
 
-    it "ignores unknown fields" do
+    it 'ignores unknown fields' do
       feed <<~CHUNK
         foo: 1
         data: hello
@@ -122,11 +122,11 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "hello", "", nil],
+        ['', 'hello', '', nil]
       ]
     end
 
-    it "ignores empty lines" do
+    it 'ignores empty lines' do
       feed <<~CHUNK
 
         #
@@ -135,7 +135,7 @@ describe EventStreamParser::Parser do
       expect []
     end
 
-    it "ignores lines starting with a colon" do
+    it 'ignores lines starting with a colon' do
       feed <<~CHUNK
         :comment
 
@@ -145,7 +145,7 @@ describe EventStreamParser::Parser do
       expect []
     end
 
-    it "joins adjacent data fields with a new line" do
+    it 'joins adjacent data fields with a new line' do
       feed <<~CHUNK
         data: hello
         data: world
@@ -154,11 +154,11 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "hello\nworld", "", nil],
+        ['', "hello\nworld", '', nil]
       ]
     end
 
-    it "treats CR as line delimiter" do
+    it 'treats CR as line delimiter' do
       feed <<~CHUNK.split("\n").join("\r")
         event: greeting
         data: hello
@@ -168,11 +168,11 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["greeting", "hello\nworld", "", nil],
+        ['greeting', "hello\nworld", '', nil]
       ]
     end
 
-    it "treats CRLF as line delimiter" do
+    it 'treats CRLF as line delimiter' do
       feed <<~CHUNK.split("\n").join("\r\n")
         event: greeting
         data: hello
@@ -182,20 +182,20 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["greeting", "hello\nworld", "", nil],
+        ['greeting', "hello\nworld", '', nil]
       ]
     end
 
-    it "handles fragmented CRLF" do
+    it 'handles fragmented CRLF' do
       feed "data: hello\r"
       feed "\nevent: greeting\r\n\r\n"
 
       expect [
-        ["greeting", "hello", "", nil],
+        ['greeting', 'hello', '', nil]
       ]
     end
 
-    it "yields multiple events" do
+    it 'yields multiple events' do
       feed <<~CHUNK
         data: hello
 
@@ -205,12 +205,12 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "hello", "", nil],
-        ["", "world", "", nil],
+        ['', 'hello', '', nil],
+        ['', 'world', '', nil]
       ]
     end
 
-    it "resets event type" do
+    it 'resets event type' do
       feed <<~CHUNK
         event: greeting
         data: hello
@@ -221,12 +221,12 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["greeting", "hello", "", nil],
-        ["", "world", "", nil],
+        ['greeting', 'hello', '', nil],
+        ['', 'world', '', nil]
       ]
     end
 
-    it "preserves last event id" do
+    it 'preserves last event id' do
       feed <<~CHUNK
         id: event-1
         data: hello
@@ -240,13 +240,13 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "hello", "event-1", nil],
-        ["", "world", "event-1", nil],
-        ["", "bye", "event-2", nil],
+        ['', 'hello', 'event-1', nil],
+        ['', 'world', 'event-1', nil],
+        ['', 'bye', 'event-2', nil]
       ]
     end
 
-    it "preserves reconnection time" do
+    it 'preserves reconnection time' do
       feed <<~CHUNK
         data: hello
 
@@ -259,13 +259,13 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "hello", "", nil],
-        ["", "world", "", 300],
-        ["", "bye", "", 300],
+        ['', 'hello', '', nil],
+        ['', 'world', '', 300],
+        ['', 'bye', '', 300]
       ]
     end
 
-    it "ignores non-decimal retry field value" do
+    it 'ignores non-decimal retry field value' do
       feed <<~CHUNK
         retry: a1
         data: hello
@@ -274,11 +274,11 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "hello", "", nil],
+        ['', 'hello', '', nil]
       ]
     end
 
-    it "ignores id field value with a null" do
+    it 'ignores id field value with a null' do
       feed <<~CHUNK
         id: event-\u0000
         data: hello
@@ -287,11 +287,11 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "hello", "", nil],
+        ['', 'hello', '', nil]
       ]
     end
 
-    it "treats line without a colon as empty field" do
+    it 'treats line without a colon as empty field' do
       feed <<~CHUNK
         data
 
@@ -305,14 +305,14 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "", "", nil],
-        ["", "hello", "event-1", nil],
-        ["", "world", "", nil],
+        ['', '', '', nil],
+        ['', 'hello', 'event-1', nil],
+        ['', 'world', '', nil]
       ]
     end
 
-    it "treats a single space after colon as optional" do
-      feed <<~CHUNK.delete("|")
+    it 'treats a single space after colon as optional' do
+      feed <<~CHUNK.delete('|')
         data:hello
 
         data: world
@@ -329,17 +329,17 @@ describe EventStreamParser::Parser do
       CHUNK
 
       expect [
-        ["", "hello", "", nil],
-        ["", "world", "", nil],
-        ["", " bye", "", nil],
-        ["", "", "", nil],
-        ["", "", "", nil],
-        ["", " ", "", nil],
+        ['', 'hello', '', nil],
+        ['', 'world', '', nil],
+        ['', ' bye', '', nil],
+        ['', '', '', nil],
+        ['', '', '', nil],
+        ['', ' ', '', nil]
       ]
     end
 
-    it "yields events on subsequent calls" do
-      chunks = <<~CHUNK.split("\n").map { |line| line + "\n" }
+    it 'yields events on subsequent calls' do
+      chunks = <<~CHUNK.split("\n").map { |line| "#{line}\n" }
         event: greeting
         data: hello
         data: world
@@ -353,14 +353,14 @@ describe EventStreamParser::Parser do
       chunks.each { |chunk| feed(chunk) }
 
       expect [
-        ["greeting", "hello\nworld", "", nil],
-        ["farewell", "bye", "", nil],
+        ['greeting', "hello\nworld", '', nil],
+        ['farewell', 'bye', '', nil]
       ]
     end
 
-    describe "stream" do
-      it "yields events" do
-        chunks = <<~CHUNK.split("\n").map { |line| line + "\n" }
+    describe 'stream' do
+      it 'yields events' do
+        chunks = <<~CHUNK.split("\n").map { |line| "#{line}\n" }
           event: greeting
           data: hello
           data: world
@@ -374,13 +374,13 @@ describe EventStreamParser::Parser do
         stream chunks
 
         expect [
-          ["greeting", "hello\nworld", "", nil],
-          ["farewell", "bye", "", nil],
+          ['greeting', "hello\nworld", '', nil],
+          ['farewell', 'bye', '', nil]
         ]
       end
 
-      it "yields events with non-new-line chunk boundaries" do
-        chunks = <<~CHUNK.split("e").map { |line| line + "e" }
+      it 'yields events with non-new-line chunk boundaries' do
+        chunks = <<~CHUNK.split('e').map { |line| "#{line}e" }
           event: greeting
           data: hello
           data: world
@@ -395,8 +395,8 @@ describe EventStreamParser::Parser do
         stream chunks
 
         expect [
-          ["greeting", "hello\nworld", "", nil],
-          ["farewell", "bye\nworld", "", nil],
+          ['greeting', "hello\nworld", '', nil],
+          ['farewell', "bye\nworld", '', nil]
         ]
       end
     end
