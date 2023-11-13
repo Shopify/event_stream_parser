@@ -38,23 +38,23 @@ gem install event_stream_parser
 
 ## Usage
 
-Create a new Parser and give it a block to receive events:
+Create a new Parser:
 
 ```rb
 parser = EventStreamParser::Parser.new
-
-parser.feed do |type, data, id, reconnection_time|
-  puts "Event type: #{type}"
-  puts "Event data: #{data}"
-  puts "Event id: #{id}"
-  puts "Reconnection time: #{reconnection_time}"
-end
 ```
 
 Then, feed it chunks as they come in:
 
 ```rb
-do_something_that_yields_chunks do { |chunk| parser.feed(chunk) }
+do_something_that_yields_chunks do |chunk|
+  parser.feed(chunk) do |type, data, id, reconnection_time|
+    puts "Event type: #{type}"
+    puts "Event data: #{data}"
+    puts "Event id: #{id}"
+    puts "Reconnection time: #{reconnection_time}"
+  end
+end
 ```
 
 Or use the `stream` method to generate a proc that you can pass to a chunk
