@@ -1,5 +1,9 @@
 # Unreleased
 
+# 1.0.0
+
+- Fix example in README and deem public contract stable
+
 # 0.3.0
 
 - Add support for Ruby 2.6, drop rubocop-shopify
