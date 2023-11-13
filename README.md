@@ -1,6 +1,6 @@
 # event_stream_parser
 
-[![Gem (including prereleases)](https://img.shields.io/gem/v/event_stream_parser)](https://rubygems.org/gems/event_stream_parser)
+[![Gem (including prereleases)](https://img.shields.io/gem/v/event_stream_parser?1.0.0)](https://rubygems.org/gems/event_stream_parser)
 [![CI](https://github.com/Shopify/event_stream_parser/actions/workflows/ci.yml/badge.svg)](https://github.com/Shopify/event_stream_parser/actions/workflows/ci.yml)
 
 A lightweight, fully spec-compliant parser for the
