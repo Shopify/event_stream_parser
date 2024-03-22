@@ -9,7 +9,7 @@ group :development, :test do
 end
 
 group :development do
-  gem 'rubocop', '~> 1.28.2'
+  gem 'rubocop', '~> 1.61'
   gem 'rubocop-performance', require: false
 end
 
