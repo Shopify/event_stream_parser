@@ -9,7 +9,8 @@ group :development, :test do
 end
 
 group :development do
-  gem 'rubocop', '~> 1.61'
+  # Latest version of rubocop that is compatible with Ruby 2.6
+  gem 'rubocop', '1.50.2'
   gem 'rubocop-performance', require: false
 end
 
