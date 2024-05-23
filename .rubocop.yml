@@ -5,6 +5,7 @@ Performance:
 
 AllCops:
   NewCops: enable
+  TargetRubyVersion: 2.6
 
 Style/SpecialGlobalVars:
   Enabled: false
