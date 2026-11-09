@@ -90,6 +90,11 @@ describe EventStreamParser::Parser do
     assert_equal [['', 'café and 茶', '', nil]], events
     assert_equal Encoding::UTF_8, events.first[1].encoding
     assert_equal original, chunks
+
+    mutable_chunks = ['data: hello'.b, ''.encode(Encoding::UTF_16LE), "\n\n".b]
+    encodings = mutable_chunks.map(&:encoding)
+    parse_chunks(mutable_chunks)
+    assert_equal encodings, mutable_chunks.map(&:encoding)
   end
 
   it 'handles binary chunks split inside multibyte characters' do
