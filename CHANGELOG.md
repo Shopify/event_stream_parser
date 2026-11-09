@@ -1,5 +1,7 @@
 # Unreleased
 
+- Avoid repeated scans of incomplete lines across chunks
+
 # 1.0.0
 
 - Fix example in README and deem public contract stable
