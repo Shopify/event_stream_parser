@@ -1,5 +1,7 @@
 # Unreleased
 
+# 1.0.1
+
 - Avoid repeated scans of incomplete lines across chunks
 
 # 1.0.0
