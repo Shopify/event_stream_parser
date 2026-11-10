@@ -24,6 +24,7 @@ module EventStreamParser
 
       @reconnection_time = nil
       @buffer = +''
+      @buffer_scanned = true
       @last_delimiter = nil
     end
 
@@ -40,11 +41,21 @@ module EventStreamParser
       #
       @buffer.delete_prefix!("\n") if @last_delimiter == "\r"
 
+      # Only skip the search after the previous call drained complete lines.
+      buffer_scanned = @buffer_scanned
+      @buffer_scanned = false
+      if buffer_scanned && !/[\r\n]/.match?(chunk.dup.force_encoding(@buffer.encoding))
+        @buffer_scanned = true
+        return
+      end
+
       while (line = @buffer.slice!(/.*?(?<delim>\r\n|\r|\n)/))
         line.chomp!
         @last_delimiter = $~[:delim]
         process_line(line, &proc)
       end
+      @buffer_scanned = true
+      nil
       ##
       # Once the end of the file is reached, any pending data must be discarded.
       # (If the file ends in the middle of an event, before the final empty line,
