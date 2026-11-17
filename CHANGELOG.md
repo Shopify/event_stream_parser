@@ -1,5 +1,7 @@
 # Unreleased
 
+- Skip retry values that do not fit in 64 bits
+
 # 1.0.1
 
 - Avoid repeated scans of incomplete lines across chunks
