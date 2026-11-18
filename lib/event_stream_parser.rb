@@ -29,17 +29,14 @@ module EventStreamParser
 
       @reconnection_time = nil
       @buffer = +''
-      # Bytes at the front of @buffer that are already processed as lines. It
-      # is state, not a local in feed: the block can break, raise or call feed
-      # again, and each must continue after the last processed line.
+      # Kept as state so a block that breaks, raises or feeds again resumes after the last processed line.
       @processed_bytes = 0
       @buffer_scanned = true
       @last_delimiter = nil
     end
 
     def feed(chunk, &proc)
-      # Processed lines are still in the buffer when the block left the last
-      # call early, and when the block itself makes this call.
+      # A block that left the last call early, or that makes this call, leaves processed lines in the buffer.
       drop_processed_lines
       @buffer << chunk
 
@@ -90,14 +87,11 @@ module EventStreamParser
       end
     end
 
-    # Removes the processed lines from the buffer in one operation. Slicing
-    # each line off the front as it is read copies the rest of the buffer every
-    # time, so one chunk of many short lines would cost quadratic time.
+    # Removing each line from the front as it is read would copy the rest of the buffer every time.
     def drop_processed_lines
       return if @processed_bytes.zero?
 
-      # Copy the unprocessed bytes into the emptied buffer. The slice shares
-      # the memory of the whole chunk, so keeping it would keep the chunk.
+      # Copied, because the slice shares the memory of the whole chunk.
       unprocessed = @buffer.byteslice(@processed_bytes..-1)
       @buffer.clear
       @buffer << unprocessed

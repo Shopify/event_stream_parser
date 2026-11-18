@@ -1,51 +1,31 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'minitest/mock'
 require 'strscan'
-
-# Counts the bytes that each line search of the parser is offered.
-module DelimiterScanWork
-  class << self
-    attr_accessor :scanned_bytes
-  end
-  self.scanned_bytes = 0
-
-  def scan_until(pattern)
-    DelimiterScanWork.scanned_bytes += rest_size
-    super
-  end
-end
-StringScanner.prepend(DelimiterScanWork)
 
 describe EventStreamParser::Parser do
   it 'keeps delimiter scan work linear across incomplete chunks' do
     work = [32, 128].map do |count|
       parser = EventStreamParser::Parser.new
-      DelimiterScanWork.scanned_bytes = 0
-      count.times { parser.feed('x' * 1024) }
-      scanned_bytes = DelimiterScanWork.scanned_bytes
-      assert_nil StringScanner.new('x').scan_until(/[\r\n]/)
-      assert_operator DelimiterScanWork.scanned_bytes, :>, scanned_bytes
-      scanned_bytes
+      scanned_bytes { count.times { parser.feed('x' * 1024) } }
     end
 
+    assert_operator(scanned_bytes { StringScanner.new('x').scan_until(/[\r\n]/) }, :>, 0)
     assert_operator work.last, :<=, work.first * 4
   end
 
-  it 'parses a chunk of many lines in linear time' do
-    lines = ["data: #{'x' * 128}\n", ":\n", "\n"] * 10_000
-    expected = [['', 'x' * 128, '', nil]] * 10_000
-    whole = nil
-    split = nil
+  it 'keeps buffer work linear in the lines of one chunk' do
+    work = [1_000, 4_000].map do |count|
+      parser = EventStreamParser::Parser.new
+      events = 0
+      bytes = buffer_work(parser) { parser.feed("data: x\n\n" * count) { events += 1 } }
+      assert_equal count, events
+      bytes
+    end
 
-    # The same lines fed one per call are the linear control. Both times scale
-    # with the machine, so their ratio does not.
-    whole_time = Array.new(2) { cpu_time { whole = parse_chunks([lines.join]) } }.min
-    split_time = cpu_time { split = parse_chunks(lines) }
-
-    assert_equal expected, whole
-    assert_equal expected, split
-    assert_operator whole_time, :<, split_time * 3
+    assert_operator work.first, :>, 0
+    assert_operator work.last, :<=, work.first * 4
   end
 
   it 'continues after the last processed line when the block feeds more data' do
@@ -214,9 +194,28 @@ describe EventStreamParser::Parser do
     events
   end
 
-  def cpu_time
-    started = Process.clock_gettime(Process::CLOCK_PROCESS_CPUTIME_ID)
-    yield
-    Process.clock_gettime(Process::CLOCK_PROCESS_CPUTIME_ID) - started
+  # Counts the bytes that each line search offers its scanner, only while the block runs.
+  def scanned_bytes(&block)
+    scanned = 0
+    new_scanner = StringScanner.method(:new)
+    counting_scanner = lambda do |string|
+      scanner = new_scanner.call(string)
+      scanner.define_singleton_method(:scan_until) do |pattern|
+        scanned += rest_size
+        super(pattern)
+      end
+      scanner
+    end
+    StringScanner.stub(:new, counting_scanner, &block)
+    scanned
+  end
+
+  # Sums the size of the parser's buffer at each method call on it, only while the block runs.
+  def buffer_work(parser, &block)
+    buffer = parser.instance_variable_get(:@buffer)
+    work = Hash.new(0)
+    trace = TracePoint.new(:c_call) { |call| work[call.self.equal?(buffer)] += buffer.bytesize }
+    trace.enable(&block)
+    work[true]
   end
 end
