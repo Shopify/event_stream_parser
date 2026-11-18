@@ -82,6 +82,10 @@ describe EventStreamParser::Parser do
     assert_equal [['greeting', 'hello', '', nil]], parse_chunks(chunks)
   end
 
+  it 'keeps an LF that follows a CRLF split across chunks' do
+    assert_equal [['', 'a', '', nil]], parse_chunks(["data: a\r", "\n", "\n"])
+  end
+
   it 'processes a lone CR at the end of a chunk immediately' do
     parser = EventStreamParser::Parser.new
     events = []

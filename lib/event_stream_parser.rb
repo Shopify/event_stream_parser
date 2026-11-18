@@ -48,7 +48,7 @@ module EventStreamParser
       # followed by a U+000A LINE FEED (LF) character being the ways in which a
       # line can end.
       #
-      @buffer.delete_prefix!("\n") if @last_delimiter == "\r"
+      @last_delimiter = "\r\n" if @last_delimiter == "\r" && @buffer.delete_prefix!("\n")
 
       # Only skip the search after the previous call drained complete lines.
       buffer_scanned = @buffer_scanned
