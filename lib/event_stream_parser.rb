@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'strscan'
 require 'event_stream_parser/version'
 
 module EventStreamParser
@@ -28,11 +29,15 @@ module EventStreamParser
 
       @reconnection_time = nil
       @buffer = +''
+      # Kept as state so a block that breaks, raises or feeds again resumes after the last processed line.
+      @processed_bytes = 0
       @buffer_scanned = true
       @last_delimiter = nil
     end
 
     def feed(chunk, &proc)
+      # A block that left the last call early, or that makes this call, leaves processed lines in the buffer.
+      drop_processed_lines
       @buffer << chunk
 
       ##
@@ -43,7 +48,7 @@ module EventStreamParser
       # followed by a U+000A LINE FEED (LF) character being the ways in which a
       # line can end.
       #
-      @buffer.delete_prefix!("\n") if @last_delimiter == "\r"
+      @last_delimiter = "\r\n" if @last_delimiter == "\r" && @buffer.delete_prefix!("\n")
 
       # Only skip the search after the previous call drained complete lines.
       buffer_scanned = @buffer_scanned
@@ -53,11 +58,8 @@ module EventStreamParser
         return
       end
 
-      while (line = @buffer.slice!(/.*?(?<delim>\r\n|\r|\n)/))
-        line.chomp!
-        @last_delimiter = $~[:delim]
-        process_line(line, &proc)
-      end
+      scan_lines(&proc)
+      drop_processed_lines
       @buffer_scanned = true
       nil
       ##
@@ -72,6 +74,29 @@ module EventStreamParser
     end
 
     private
+
+    def scan_lines(&proc)
+      scanner = StringScanner.new(@buffer)
+      while (line = scanner.scan_until(/\r\n|\r|\n/))
+        @processed_bytes = scanner.pos
+        line.chomp!
+        @last_delimiter = scanner.matched
+        process_line(line, &proc)
+        # A feed call from the block moves the unprocessed bytes to the front.
+        scanner.pos = @processed_bytes
+      end
+    end
+
+    # Removing each line from the front as it is read would copy the rest of the buffer every time.
+    def drop_processed_lines
+      return if @processed_bytes.zero?
+
+      # Copied, because the slice shares the memory of the whole chunk.
+      unprocessed = @buffer.byteslice(@processed_bytes..-1)
+      @buffer.clear
+      @buffer << unprocessed
+      @processed_bytes = 0
+    end
 
     def process_line(line, &proc)
       ##

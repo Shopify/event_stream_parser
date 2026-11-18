@@ -1,35 +1,50 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-
-class DelimiterScanBuffer < String
-  attr_reader :scanned_bytes
-
-  def initialize
-    super
-    @scanned_bytes = 0
-  end
-
-  def slice!(*args)
-    @scanned_bytes += bytesize
-    super
-  end
-end
+require 'minitest/mock'
+require 'strscan'
 
 describe EventStreamParser::Parser do
   it 'keeps delimiter scan work linear across incomplete chunks' do
     work = [32, 128].map do |count|
       parser = EventStreamParser::Parser.new
-      buffer = DelimiterScanBuffer.new
-      parser.instance_variable_set(:@buffer, buffer)
-      count.times { parser.feed('x' * 1024) }
-      scanned_bytes = buffer.scanned_bytes
-      assert_nil buffer.slice!(/[\r\n]/)
-      assert_operator buffer.scanned_bytes, :>, scanned_bytes
-      scanned_bytes
+      scanned_bytes { count.times { parser.feed('x' * 1024) } }
     end
 
+    assert_operator(scanned_bytes { StringScanner.new('x').scan_until(/[\r\n]/) }, :>, 0)
     assert_operator work.last, :<=, work.first * 4
+  end
+
+  it 'keeps buffer work linear in the lines of one chunk' do
+    work = [1_000, 4_000].map do |count|
+      parser = EventStreamParser::Parser.new
+      events = 0
+      bytes = buffer_work(parser) { parser.feed("data: x\n\n" * count) { events += 1 } }
+      assert_equal count, events
+      bytes
+    end
+
+    assert_operator work.first, :>, 0
+    assert_operator work.last, :<=, work.first * 4
+  end
+
+  it 'continues after the last processed line when the block feeds more data' do
+    parser = EventStreamParser::Parser.new
+    events = []
+    more = ["ur\r\r"]
+    # After a CR, the nested call looks for the LF of a split CRLF at the front
+    # of the buffer, so the processed blank line must not be there to match.
+    # The nested call stops at its first event; the outer call takes the rest.
+    parser.feed("\ndata: one\r\rdata: two\r\rdata: three\r\rdata: fo") do |*event|
+      events << event
+      assert_operator events.size, :<=, 4, 'an event was processed again'
+      parser.feed(more.shift.to_s) do |*nested|
+        events << nested
+        break
+      end
+    end
+
+    assert_equal(%w[one two three four].map { |data| ['', data, '', nil] }, events)
   end
 
   it 'parses the same events with whole, fixed and random chunks' do
@@ -65,6 +80,10 @@ describe EventStreamParser::Parser do
     chunks = ["data: hello\r", '', '', "\n", '', "event: greeting\r", '', "\n\r", '', "\n"]
 
     assert_equal [['greeting', 'hello', '', nil]], parse_chunks(chunks)
+  end
+
+  it 'keeps an LF that follows a CRLF split across chunks' do
+    assert_equal [['', 'a', '', nil]], parse_chunks(["data: a\r", "\n", "\n"])
   end
 
   it 'processes a lone CR at the end of a chunk immediately' do
@@ -177,5 +196,30 @@ describe EventStreamParser::Parser do
     events = []
     chunks.each { |chunk| parser.feed(chunk) { |*event| events << event } }
     events
+  end
+
+  # Counts the bytes that each line search offers its scanner, only while the block runs.
+  def scanned_bytes(&block)
+    scanned = 0
+    new_scanner = StringScanner.method(:new)
+    counting_scanner = lambda do |string|
+      scanner = new_scanner.call(string)
+      scanner.define_singleton_method(:scan_until) do |pattern|
+        scanned += rest_size
+        super(pattern)
+      end
+      scanner
+    end
+    StringScanner.stub(:new, counting_scanner, &block)
+    scanned
+  end
+
+  # Sums the size of the parser's buffer at each method call on it, only while the block runs.
+  def buffer_work(parser, &block)
+    buffer = parser.instance_variable_get(:@buffer)
+    work = Hash.new(0)
+    trace = TracePoint.new(:c_call) { |call| work[call.self.equal?(buffer)] += buffer.bytesize }
+    trace.enable(&block)
+    work[true]
   end
 end
