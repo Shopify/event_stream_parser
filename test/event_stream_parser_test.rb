@@ -278,6 +278,108 @@ describe EventStreamParser::Parser do
       ]
     end
 
+    it 'accepts the largest 64-bit retry field value' do
+      feed <<~CHUNK
+        retry: 18446744073709551615
+        data: hello
+
+        #
+      CHUNK
+
+      expect [
+        ['', 'hello', '', 18_446_744_073_709_551_615]
+      ]
+    end
+
+    it 'ignores a retry field value that does not fit in 64 bits' do
+      feed <<~CHUNK
+        retry: 300
+        data: first
+
+        retry: 18446744073709551616
+        data: second
+
+        retry: 99999999999999999999
+        data: third
+
+        retry: 100000000000000000000
+        data: fourth
+
+        retry: 0018446744073709551616
+        data: fifth
+
+        #
+      CHUNK
+
+      expect [
+        ['', 'first', '', 300],
+        ['', 'second', '', 300],
+        ['', 'third', '', 300],
+        ['', 'fourth', '', 300],
+        ['', 'fifth', '', 300]
+      ]
+    end
+
+    it 'accepts a retry field value with leading zeros' do
+      feed <<~CHUNK
+        retry: #{'0' * 100}5
+        data: first
+
+        retry: 0018446744073709551615
+        data: second
+
+        retry: 00
+        data: third
+
+        retry: #{'0' * 100}
+        data: fourth
+
+        retry: 9999999999999999999
+        data: fifth
+
+        retry: #{'0' * 1_000_000}1
+        data: sixth
+
+        #
+      CHUNK
+
+      expect [
+        ['', 'first', '', 5],
+        ['', 'second', '', 18_446_744_073_709_551_615],
+        ['', 'third', '', 0],
+        ['', 'fourth', '', 0],
+        ['', 'fifth', '', 9_999_999_999_999_999_999],
+        ['', 'sixth', '', 1]
+      ]
+    end
+
+    it 'ignores a very long retry field value without converting it' do
+      started = Process.clock_gettime(Process::CLOCK_PROCESS_CPUTIME_ID)
+      feed "retry: #{'9' * 8_000_000}\ndata: hello\n\n"
+      elapsed = Process.clock_gettime(Process::CLOCK_PROCESS_CPUTIME_ID) - started
+
+      assert_operator elapsed, :<, 2
+      assert_equal 1, @events.size
+      assert @events.first[3].nil?, 'expected the retry value to be ignored'
+    end
+
+    it 'ignores an empty retry field value' do
+      feed <<~CHUNK
+        retry: 300
+        data: first
+
+        retry:
+        data: second
+
+        #
+      CHUNK
+
+      expect [
+        ['', 'first', '', 300],
+        ['', 'second', '', 300]
+      ]
+    end
+
     it 'ignores id field value with a null' do
       feed <<~CHUNK
         id: event-\u0000

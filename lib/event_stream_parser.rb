@@ -12,6 +12,10 @@ module EventStreamParser
   # Code comments are copied from the spec.
   #
   class Parser
+    # Largest value of an unsigned 64-bit integer, as digits.
+    MAX_RECONNECTION_TIME_DIGITS = '18446744073709551615'
+    private_constant :MAX_RECONNECTION_TIME_DIGITS
+
     def initialize
       ##
       # When a stream is parsed, a data buffer, an event type buffer, and a last
@@ -161,7 +165,8 @@ module EventStreamParser
         # field value as an integer in base ten, and set the event stream's
         # reconnection time to that integer. Otherwise, ignore the field.
         #
-        @reconnection_time = value.to_i if /\A\d+\z/.match?(value)
+        time = parse_reconnection_time(value)
+        @reconnection_time = time if time
       ##
       # Otherwise
       #
@@ -226,6 +231,19 @@ module EventStreamParser
       @event_type_buffer = +''
 
       yield type, data, id, @reconnection_time
+    end
+
+    # Returns nil when the value has a non-digit or does not fit in 64 bits.
+    # Like browsers, ignore values above the unsigned 64-bit range. The length
+    # check comes before the conversion, so the cost stays bounded.
+    def parse_reconnection_time(value)
+      return unless /\A\d+\z/.match?(value)
+
+      digits = value.sub(/\A0+/, '')
+      return unless digits.length < MAX_RECONNECTION_TIME_DIGITS.length ||
+                    (digits.length == MAX_RECONNECTION_TIME_DIGITS.length && digits <= MAX_RECONNECTION_TIME_DIGITS)
+
+      digits.to_i
     end
 
     def ignore; end
