@@ -1,6 +1,7 @@
 # Unreleased
 
 - Skip retry values that do not fit in 64 bits
+- Parse a chunk of many short lines in linear time
 
 # 1.0.1
 
