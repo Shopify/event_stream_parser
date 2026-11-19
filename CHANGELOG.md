@@ -1,5 +1,7 @@
 # Unreleased
 
+# 1.0.2
+
 - Skip retry values that do not fit in 64 bits
 - Parse a chunk of many short lines in linear time
 - Keep an LF that follows a CRLF split across chunks
